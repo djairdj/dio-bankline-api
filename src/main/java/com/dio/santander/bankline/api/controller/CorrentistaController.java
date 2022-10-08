@@ -5,8 +5,11 @@ import com.dio.santander.bankline.api.model.Correntista;
 import com.dio.santander.bankline.api.repository.CorrentistaRepository;
 import com.dio.santander.bankline.api.service.CorrentistaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -24,7 +27,10 @@ public class CorrentistaController {
     }
 
     @PostMapping
-    public void save(@RequestBody NovoCorrentista correntista) {
-        service.save(correntista);
+    public ResponseEntity<Object> save(@RequestBody @Valid NovoCorrentista correntista) {
+        if (service.existsByCpf(correntista)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict CPF is already exist");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(service.save(correntista));
     }
 }
